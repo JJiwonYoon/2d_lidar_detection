@@ -1,2 +1,2 @@
-# 2D_LiDAR_detection
+# 2d_lidar_detection
 exploration_bot Obstacle Avoidance

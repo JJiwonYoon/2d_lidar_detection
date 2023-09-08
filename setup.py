@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = '2D_LiDAR_detection'
+package_name = '2d_lidar_detection'
 
 setup(
     name=package_name,
