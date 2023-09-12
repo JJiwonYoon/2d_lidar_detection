@@ -43,7 +43,7 @@ class detection(Node):
                 self.target_num, self.max_value = max(enumerate(self.partition_list),key=lambda x: x[1])
                 self.target_num +=1
         float_msg.data= float(self.target_num)
-        print(self.target_num,self.max_value)
+        # print(f'num: {self.target_num}')
         self.target_num_pub.publish(float_msg)
                 
 def main():
