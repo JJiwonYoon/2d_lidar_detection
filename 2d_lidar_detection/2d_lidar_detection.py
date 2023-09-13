@@ -11,7 +11,7 @@ class detection(Node):
     def __init__(self):
         super().__init__('detection_node')
         self.partition_cnt         = 8
-        self.global_x_LiDAR        = 410 #mm
+        self.global_x_LiDAR        = 500 #mm
         self.global_y_LiDAR        = 500
         self.distance              = 0   #mm
         self.added_range           = int(2*((self.global_x_LiDAR)/(self.partition_cnt)))
