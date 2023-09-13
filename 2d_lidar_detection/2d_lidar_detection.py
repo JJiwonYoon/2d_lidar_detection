@@ -11,12 +11,12 @@ class detection(Node):
     def __init__(self):
         super().__init__('detection_node')
         self.partition_cnt         = 8
-        self.global_x_LiDAR        = 240 #mm
-        self.global_y_LiDAR        = 200
+        self.global_x_LiDAR        = 410 #mm
+        self.global_y_LiDAR        = 500
         self.distance              = 0   #mm
         self.added_range           = int(2*((self.global_x_LiDAR)/(self.partition_cnt)))
         self.RC_group = ReentrantCallbackGroup()
-        self.create_subscription(LiDAR,'/scan',self.LiDAR_callback,1, callback_group=self.RC_group)
+        self.create_subscription(LiDAR,'/ouster/scan',self.LiDAR_callback,1, callback_group=self.RC_group)
         self.target_num_pub = self.create_publisher(Float32, '/LiDAR_target_num', 1, callback_group=self.RC_group)
 
 
@@ -30,8 +30,8 @@ class detection(Node):
         float_msg                  = Float32()
         for i in range(len(self.lidar_data)):
             angle = (self.lidar_angle_increment * i)
-            x = -np.sin(angle) * self.lidar_data[i] * 1000
-            y = np.cos(angle) * self.lidar_data[i] * 1000
+            x = np.sin(angle) * self.lidar_data[i] * 1000
+            y = -np.cos(angle) * self.lidar_data[i] * 1000
             
             if (abs(x) < self.global_x_LiDAR) & (y > 0) & (y < self.global_y_LiDAR): #mm
                 for i in range(self.partition_cnt):
@@ -43,7 +43,7 @@ class detection(Node):
                 self.target_num, self.max_value = max(enumerate(self.partition_list),key=lambda x: x[1])
                 self.target_num +=1
         float_msg.data= float(self.target_num)
-        # print(f'num: {self.target_num}')
+        print(f'num: {self.target_num}')
         self.target_num_pub.publish(float_msg)
                 
 def main():
