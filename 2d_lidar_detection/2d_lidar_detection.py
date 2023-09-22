@@ -11,6 +11,7 @@ class detection(Node):
     def __init__(self):
         super().__init__('detection_node')
         self.partition_cnt         = 8
+        self.min_global_y_LiDAR    = 300
         self.global_x_LiDAR        = 500 #mm
         self.global_y_LiDAR        = 500
         self.distance              = 0   #mm
@@ -33,7 +34,7 @@ class detection(Node):
             x = np.sin(angle) * self.lidar_data[i] * 1000
             y = -np.cos(angle) * self.lidar_data[i] * 1000
             
-            if (abs(x) < self.global_x_LiDAR) & (y > 0) & (y < self.global_y_LiDAR): #mm
+            if (abs(x) < self.global_x_LiDAR) and (y > self.min_global_y_LiDAR) and (y < self.global_y_LiDAR): #mm
                 for i in range(self.partition_cnt):
                     if ((-self.global_x_LiDAR)+ i*(self.added_range)) < (x) and \
                         (x) < ((-self.global_x_LiDAR)+ ((i+1)*(self.added_range))):
@@ -43,7 +44,7 @@ class detection(Node):
                 self.target_num, self.max_value = max(enumerate(self.partition_list),key=lambda x: x[1])
                 self.target_num +=1
         float_msg.data= float(self.target_num)
-        print(f'num: {self.target_num}')
+        # print(f'num: {self.target_num}')
         self.target_num_pub.publish(float_msg)
                 
 def main():
