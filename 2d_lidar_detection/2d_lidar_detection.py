@@ -11,9 +11,9 @@ class detection(Node):
     def __init__(self):
         super().__init__('detection_node')
         self.partition_cnt         = 8
-        self.min_global_y_LiDAR    = 300
-        self.global_x_LiDAR        = 500 #mm
-        self.global_y_LiDAR        = 500
+        self.min_global_y_LiDAR    = 200
+        self.global_x_LiDAR        = 400 #mm
+        self.global_y_LiDAR        = 1500
         self.distance              = 0   #mm
         self.added_range           = int(2*((self.global_x_LiDAR)/(self.partition_cnt)))
         self.RC_group = ReentrantCallbackGroup()
@@ -33,7 +33,7 @@ class detection(Node):
             angle = (self.lidar_angle_increment * i)
             x = np.sin(angle) * self.lidar_data[i] * 1000
             y = -np.cos(angle) * self.lidar_data[i] * 1000
-            
+
             if (abs(x) < self.global_x_LiDAR) and (y > self.min_global_y_LiDAR) and (y < self.global_y_LiDAR): #mm
                 for i in range(self.partition_cnt):
                     if ((-self.global_x_LiDAR)+ i*(self.added_range)) < (x) and \
@@ -43,10 +43,12 @@ class detection(Node):
                         self.partition_list[i] = len(self.distance_data)
                 self.target_num, self.max_value = max(enumerate(self.partition_list),key=lambda x: x[1])
                 self.target_num +=1
+                # print(self.partition_list)
         float_msg.data= float(self.target_num)
-        # print(f'num: {self.target_num}')
+        print(f'num: {self.target_num}')
+        print(self.partition_list)
         self.target_num_pub.publish(float_msg)
-                
+
 def main():
         rclpy.init()
         C = detection()
