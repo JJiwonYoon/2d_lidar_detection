@@ -7,19 +7,20 @@ from sensor_msgs.msg import LaserScan as LiDAR
 import numpy as np
 import math
 from std_msgs.msg import Float32
+
 class detection(Node):
+
     def __init__(self):
         super().__init__('detection_node')
         self.partition_cnt         = 8
         self.min_global_y_LiDAR    = 200
         self.global_x_LiDAR        = 400 #mm
-        self.global_y_LiDAR        = 1500
+        self.global_y_LiDAR        = 400
         self.distance              = 0   #mm
         self.added_range           = int(2*((self.global_x_LiDAR)/(self.partition_cnt)))
         self.RC_group = ReentrantCallbackGroup()
-        self.create_subscription(LiDAR,'/ouster/scan',self.LiDAR_callback,1, callback_group=self.RC_group)
+        self.create_subscription(LiDAR,'/scan',self.LiDAR_callback,1, callback_group=self.RC_group)
         self.target_num_pub = self.create_publisher(Float32, '/LiDAR_target_num', 1, callback_group=self.RC_group)
-
 
     def LiDAR_callback(self,msg):
         self.lidar_data = msg.ranges
@@ -31,8 +32,8 @@ class detection(Node):
         float_msg                  = Float32()
         for i in range(len(self.lidar_data)):
             angle = (self.lidar_angle_increment * i)
-            x = np.sin(angle) * self.lidar_data[i] * 1000
-            y = -np.cos(angle) * self.lidar_data[i] * 1000
+            x = -np.sin(angle) * self.lidar_data[i] * 1000
+            y = np.cos(angle) * self.lidar_data[i] * 1000
 
             if (abs(x) < self.global_x_LiDAR) and (y > self.min_global_y_LiDAR) and (y < self.global_y_LiDAR): #mm
                 for i in range(self.partition_cnt):
@@ -43,7 +44,8 @@ class detection(Node):
                         self.partition_list[i] = len(self.distance_data)
                 self.target_num, self.max_value = max(enumerate(self.partition_list),key=lambda x: x[1])
                 self.target_num +=1
-                # print(self.partition_list)
+                print(self.partition_list)
+
         float_msg.data= float(self.target_num)
         print(f'num: {self.target_num}')
         print(self.partition_list)
